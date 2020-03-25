@@ -10,16 +10,17 @@
 
 `define log2(VALUE) ((VALUE) < ( 1 ) ? 0 : (VALUE) < ( 2 ) ? 1 : (VALUE) < ( 4 ) ? 2 : (VALUE) < ( 8 ) ? 3 : (VALUE) < ( 16 )  ? 4 : (VALUE) < ( 32 )  ? 5 : (VALUE) < ( 64 )  ? 6 : (VALUE) < ( 128 ) ? 7 : (VALUE) < ( 256 ) ? 8 : (VALUE) < ( 512 ) ? 9 : (VALUE) < ( 1024 ) ? 10 : (VALUE) < ( 2048 ) ? 11 : (VALUE) < ( 4096 ) ? 12 : (VALUE) < ( 8192 ) ? 13 : (VALUE) < ( 16384 ) ? 14 : (VALUE) < ( 32768 ) ? 15 : (VALUE) < ( 65536 ) ? 16 : (VALUE) < ( 131072 ) ? 17 : (VALUE) < ( 262144 ) ? 18 : (VALUE) < ( 524288 ) ? 19 : (VALUE) < ( 1048576 ) ? 20 : (VALUE) < ( 1048576 * 2 ) ? 21 : (VALUE) < ( 1048576 * 4 ) ? 22 : (VALUE) < ( 1048576 * 8 ) ? 23 : (VALUE) < ( 1048576 * 16 ) ? 24 : 25)
 
-`define REG_STATUS 4'b0000 // BASEREG + 0x00
-`define REG_CLKDIV 4'b0001 // BASEREG + 0x04
-`define REG_SPICMD 4'b0010 // BASEREG + 0x08
-`define REG_SPIADR 4'b0011 // BASEREG + 0x0C
-`define REG_SPILEN 4'b0100 // BASEREG + 0x10
-`define REG_SPIDUM 4'b0101 // BASEREG + 0x14
-`define REG_TXFIFO 4'b0110 // BASEREG + 0x18
-`define REG_RXFIFO 4'b1000 // BASEREG + 0x20
-`define REG_INTCFG 4'b1001 // BASEREG + 0x24
-`define REG_INTSTA 4'b1010 // BASEREG + 0x28
+`define REG_STATUS  4'b0000 // BASEREG + 0x00
+`define REG_CLKDIV  4'b0001 // BASEREG + 0x04
+`define REG_SPICMD  4'b0010 // BASEREG + 0x08
+`define REG_SPIADR  4'b0011 // BASEREG + 0x0C
+`define REG_SPILEN  4'b0100 // BASEREG + 0x10
+`define REG_SPIDUM  4'b0101 // BASEREG + 0x14
+`define REG_TXFIFO  4'b0110 // BASEREG + 0x18
+`define REG_RXFIFO  4'b1000 // BASEREG + 0x20
+`define REG_INTCFG  4'b1001 // BASEREG + 0x24
+`define REG_INTSTA  4'b1010 // BASEREG + 0x28
+`define REG_SPICTRL 4'b1011 // BASEREG + 0x2C
 
 module spi_master_apb_if
 #(
@@ -47,6 +48,7 @@ module spi_master_apb_if
     output logic               [31:0] spi_cmd,
     output logic                [5:0] spi_cmd_len,
     output logic                [3:0] spi_csreg,
+    output logic                [1:0] spi_ctrl,
     output logic               [15:0] spi_data_len,
     output logic               [15:0] spi_dummy_rd,
     output logic               [15:0] spi_dummy_wr,
@@ -100,6 +102,7 @@ module spi_master_apb_if
             spi_dummy_rd      <=  '0;
             spi_dummy_wr      <=  '0;
             spi_csreg         <=  '0;
+            spi_ctrl          <=  '0;
             spi_int_th_tx     <=  '0;
             spi_int_th_rx     <=  '0;
             spi_int_cnt_tx    <=  '0;
@@ -165,6 +168,10 @@ module spi_master_apb_if
                       spi_int_cnt_en <= PWDATA[30];
                       spi_int_en     <= PWDATA[31];
                   end
+
+                  `REG_SPICTRL:
+                      spi_ctrl <= PWDATA[1:0]; // bit 1: CPOL, bit 0: CPHA
+
                   endcase
               end
               else
@@ -207,6 +214,8 @@ module spi_master_apb_if
             PRDATA[30]                       = spi_int_cnt_en;
             PRDATA[31]                       = spi_int_en;
         end
+        `REG_SPICTRL:
+            PRDATA = {30'h0, spi_ctrl};
         default:
             PRDATA = '0;
       endcase

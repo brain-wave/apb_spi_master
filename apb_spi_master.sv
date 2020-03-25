@@ -65,6 +65,7 @@ module apb_spi_master
     logic         spi_qrd;
     logic         spi_qwr;
     logic   [3:0] spi_csreg;
+    logic   [1:0] spi_ctrl;
     logic  [31:0] spi_data_tx;
     logic         spi_data_tx_valid;
     logic         spi_data_tx_ready;
@@ -274,6 +275,7 @@ module apb_spi_master
         .spi_qrd           ( spi_qrd           ),
         .spi_qwr           ( spi_qwr           ),
         .spi_csreg         ( spi_csreg         ),
+        .spi_ctrl          ( spi_ctrl          ),
         .spi_int_th_rx     ( s_th_rx           ),
         .spi_int_th_tx     ( s_th_tx           ),
         .spi_int_cnt_rx    ( s_cnt_rx          ),
@@ -354,6 +356,7 @@ module apb_spi_master
         .spi_qrd                ( spi_qrd                ),
         .spi_qwr                ( spi_qwr                ),
         .spi_csreg              ( spi_csreg              ),
+        .spi_ctrl               ( spi_ctrl               ),
         .spi_ctrl_data_tx       ( spi_ctrl_data_tx       ),
         .spi_ctrl_data_tx_valid ( spi_ctrl_data_tx_valid ),
         .spi_ctrl_data_tx_ready ( spi_ctrl_data_tx_ready ),
